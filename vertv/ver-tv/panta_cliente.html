@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 VerTV - Pantalla Cliente</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+    }
+    .input {
+      margin: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #111;
+      color: #fff;
+      width: 100%;
+      max-width: 300px;
+    }
+    .btn {
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .bloqueado {
+      color: #f55;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .ok {
+      margin-top: 30px;
+      color: #0f0;
+      font-weight: bold;
+    }
+    .registro-link {
+      margin-top: 20px;
+    }
+    .registro-link a {
+      color: #00ff88;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎬 Bienvenido a VerTV</h1>
+  <input type="email" id="email" class="input" placeholder="Correo del cliente" />
+  <input type="password" id="password" class="input" placeholder="Contraseña" />
+  <button class="btn" id="btnEntrar">Entrar a mi pantalla</button>
+
+  <div class="registro-link">
+    ¿Eres nuevo? <a href="registro.html">Regístrate aquí</a>
+  </div>
+
+  <div id="resultado"></div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://jewaryuxrujpsgpoxgoq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impld2FyeXV4cnVqcHNncG94Z29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTAzOTgsImV4cCI6MjA2Nzc2NjM5OH0.JeuKtSCHqWmu9JsWFr1O0fzdQMnoqH7bDYX2Qkcr2Mk'
+    );
+
+    document.getElementById("btnEntrar").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const resultado = document.getElementById("resultado");
+
+      if (!email || !password) {
+        resultado.innerHTML = '<p class="bloqueado">❗ Ingresa tus datos completos.</p>';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("usuarios_vertv")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
+
+      if (error || !data) {
+        resultado.innerHTML = '<p class="bloqueado">❌ Usuario o contraseña inválidos.</p>';
+        return;
+      }
+
+      const hoy = new Date().toISOString().split("T")[0];
+      if (data.estado !== 'activo' || data.vencimiento < hoy) {
+        resultado.innerHTML = '<p class="bloqueado">🚫 Tu acceso ha sido suspendido por falta de pago.</p>';
+        return;
+      }
+
+      resultado.innerHTML = `
+        <p class="ok">✅ Bienvenido, tu cuenta está activa.</p>
+        <p class="ok">🔐 Aquí aparecería tu pantalla de streaming.</p>
+        <p style="color:#ccc;">(Netflix, HBO, Spotify, etc.)</p>
+      `;
+    });
+  </script>
+
+</body>
+</html>

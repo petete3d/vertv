@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro - VerTV</title>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabase = createClient(
+      "https://hfwiuwqpskfrnshcjtnq.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhmd2l1d3Fwc2tmcm5zaGNqdG5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MjY3MTksImV4cCI6MjA2OTQwMjcxOX0.N6b1CjHtQtCEgyy9KmNv7WTfgnvGjB1HdbEgfmaWWLU"
+    );
+
+    window.registrarNuevoCliente = async function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("⚠️ Por favor, completa ambos campos.");
+        return;
+      }
+
+      const { data: existente, error: errorConsulta } = await supabase
+        .from("usuarios_vertv")
+        .select("email")
+        .eq("email", email);
+
+      if (errorConsulta) {
+        alert("❌ Error al consultar: " + errorConsulta.message);
+        return;
+      }
+
+      if (existente.length > 0) {
+        alert("❌ Este correo ya está registrado.");
+        return;
+      }
+
+      const hoy = new Date();
+      const vencimiento = new Date(hoy.setDate(hoy.getDate() + 30)).toISOString();
+
+      const { error } = await supabase
+        .from("usuarios_vertv")
+        .insert([
+          {
+            email,
+            password,
+            estado: "activo",
+            vencimiento
+          }
+        ]);
+
+      if (error) {
+        alert("❌ Error al registrar: " + error.message);
+      } else {
+        alert("✅ Registro exitoso. Ahora puedes iniciar sesión.");
+        window.location.href = "login.html";
+      }
+    };
+  </script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      color: #00ff88;
+      margin-bottom: 20px;
+    }
+    .input {
+      margin: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #111;
+      color: #fff;
+      width: 100%;
+      max-width: 300px;
+    }
+    .btn {
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📺 Registrarse en VerTV</h1>
+  <input type="email" id="email" class="input" placeholder="Correo electrónico" />
+  <input type="password" id="password" class="input" placeholder="Contraseña" />
+  <button class="btn" onclick="registrarNuevoCliente()">Registrar</button>
+
+</body>
+</html>

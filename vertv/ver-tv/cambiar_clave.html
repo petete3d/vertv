@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cambiar contraseña - VerTV</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #00ff88;
+      width: 100%;
+      max-width: 400px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00ff88;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    input {
+      background: #222;
+      color: white;
+    }
+    button {
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Cambiar Contraseña</h1>
+    <input type="password" id="new_password" placeholder="Nueva contraseña" />
+    <button onclick="cambiarClave()">Actualizar</button>
+    <p id="mensaje" style="text-align:center; margin-top:15px;"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient(
+      'https://jewaryuxrujpsgpoxgoq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impld2FyeXV4cnVqcHNncG94Z29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTAzOTgsImV4cCI6MjA2Nzc2NjM5OH0.JeuKtSCHqWmu9JsWFr1O0fzdQMnoqH7bDYX2Qkcr2Mk'
+    );
+
+    async function cambiarClave() {
+      const nueva = document.getElementById("new_password").value;
+      const mensaje = document.getElementById("mensaje");
+
+      const { data: user, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !user.session) {
+        mensaje.textContent = "⚠️ Debes iniciar sesión para cambiar la contraseña.";
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password: nueva
+      });
+
+      if (error) {
+        mensaje.textContent = "❌ " + error.message;
+      } else {
+        mensaje.textContent = "✅ Contraseña actualizada.";
+      }
+    }
+  </script>
+  <script src="cambiar_clave.js"></script>
+
+</body>
+</html>

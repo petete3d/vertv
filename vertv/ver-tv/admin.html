@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 Panel de Administrador VerTV</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #00ff88;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group input, .form-group button {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      min-width: 200px;
+    }
+
+    input {
+      background-color: #111;
+      color: white;
+    }
+
+    button {
+      background-color: #00ff88;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00cc70;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background-color: #111;
+    }
+
+    tr.suspendido {
+      background-color: #400;
+      color: #faa;
+    }
+
+    .estado-activo {
+      color: #0f0;
+    }
+
+    .estado-suspendido {
+      color: #f55;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎬 Panel de Administrador VerTV</h1>
+
+  <div class="form-group">
+    <input type="email" id="email" placeholder="📧 Correo del cliente" />
+    <input type="password" id="password" placeholder="🔐 Contraseña" />
+    <input type="date" id="vencimiento" />
+    <button onclick="registrarCliente()">Registrar Cliente</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>📧 Email</th>
+        <th>📅 Vencimiento</th>
+        <th>🔒 Estado</th>
+        <th>⚙️ Acción</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-clientes"></tbody>
+  </table>
+
+  <script>
+    const supabase = supabase.createClient(
+      'https://jewaryuxrujpsgpoxgoq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impld2FyeXV4cnVqcHNncG94Z29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTAzOTgsImV4cCI6MjA2Nzc2NjM5OH0.JeuKtSCHqWmu9JsWFr1O0fzdQMnoqH7bDYX2Qkcr2Mk'
+    );
+
+    async function registrarCliente() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const vencimiento = document.getElementById("vencimiento").value;
+
+      if (!email || !password || !vencimiento) {
+        alert("⚠️ Completa todos los campos.");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("usuarios_vertv")
+        .insert([{ email, password, estado: "activo", vencimiento }]);
+
+      if (error) {
+        alert("❌ Error al registrar: " + error.message);
+      } else {
+        alert("✅ Cliente registrado correctamente.");
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("vencimiento").value = "";
+        cargarClientes();
+      }
+    }
+
+    async function cambiarEstado(email, nuevoEstado) {
+      await supabase
+        .from("usuarios_vertv")
+        .update({ estado: nuevoEstado })
+        .eq("email", email);
+
+      cargarClientes();
+    }
+
+    async function cargarClientes() {
+      const { data, error } = await supabase
+        .from("usuarios_vertv")
+        .select("*")
+        .order("vencimiento", { ascending: true });
+
+      const tabla = document.getElementById("tabla-clientes");
+      tabla.innerHTML = "";
+
+      const hoy = new Date();
+
+      data.forEach(cliente => {
+        const vencimiento = new Date(cliente.vencimiento);
+        const vencido = vencimiento < hoy;
+        const clase = vencido ? 'suspendido' : '';
+        const estado = vencido ? 'suspendido' : cliente.estado;
+        const claseEstado = estado === "activo" ? "estado-activo" : "estado-suspendido";
+
+        tabla.innerHTML += `
+          <tr class="${clase}">
+            <td>${cliente.email}</td>
+            <td>${cliente.vencimiento}</td>
+            <td class="${claseEstado}">${estado}</td>
+            <td>
+              <button onclick="cambiarEstado('${cliente.email}', '${estado === 'activo' ? 'suspendido' : 'activo'}')">
+                Cambiar a ${estado === 'activo' ? 'suspendido' : 'activo'}
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    cargarClientes();
+  </script>
+<script src="admin.js"></script>
+
+</body>
+</html>

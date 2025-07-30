@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VerTV - Iniciar sesión</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #00ff88;
+      width: 100%;
+      max-width: 400px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00ff88;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    input {
+      background: #222;
+      color: white;
+    }
+    button {
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🎬 VerTV</h1>
+    <input type="email" id="email" placeholder="Correo electrónico" />
+    <input type="password" id="password" placeholder="Contraseña" />
+    <button onclick="login()">Iniciar sesión</button>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://jewaryuxrujpsgpoxgoq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impld2FyeXV4cnVqcHNncG94Z29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTAzOTgsImV4cCI6MjA2Nzc2NjM5OH0.JeuKtSCHqWmu9JsWFr1O0fzdQMnoqH7bDYX2Qkcr2Mk'
+    );
+
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        alert("Por favor completa todos los campos.");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("clientes_vertv")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
+
+      if (error || !data) {
+        alert("❌ Usuario o contraseña incorrectos.");
+        return;
+      }
+
+      if (data.estado === "suspendido") {
+        alert("⛔ Tu cuenta está suspendida. Contacta al administrador.");
+        return;
+      }
+
+      localStorage.setItem("cliente_email", data.email);
+      window.location.href = "cliente.html";
+    }
+    
+  </script>
+  <script src="login.js"></script>
+
+</body>
+</html>
