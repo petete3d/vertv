@@ -2,9 +2,75 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>VerTV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 VerTV - Pantalla Cliente</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+    }
+    .input {
+      margin: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #111;
+      color: #fff;
+      width: 100%;
+      max-width: 300px;
+    }
+    .btn {
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .bloqueado {
+      color: #f55;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .ok {
+      margin-top: 30px;
+      color: #0f0;
+      font-weight: bold;
+    }
+    .registro-link {
+      margin-top: 20px;
+    }
+    .registro-link a {
+      color: #00ff88;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>¡VerTV funcionando!</h1>
+
+  <h1>🎬 Bienvenido a VerTV</h1>
+  <input type="email" id="email" class="input" placeholder="Correo del cliente" />
+  <input type="password" id="password" class="input" placeholder="Contraseña" />
+  <button class="btn" id="btnEntrar">Entrar a mi pantalla</button>
+
+  <div class="registro-link">
+    ¿Eres nuevo? <a href="registro.html">Regístrate aquí</a>
+  </div>
+
+  <div id="resultado"></div>
+
+  <!-- Lógica separada -->
+  <script type="module" src="login.js"></script>
 </body>
 </html>
